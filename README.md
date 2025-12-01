@@ -1,24 +1,26 @@
 # SQL-executer SQL Practice App
 
-ブラウザ上で SQL を書いて実行できる練習用アプリです。  
+ブラウザ上で SQL を書いて実行できる練習用アプリです。
 最初は Next.js だけで動く構成から始めています。
 
 ---
-# 実行計画
-## Features
 
-### 基本機能（MVP）
+## 🎉 実装済み機能（MVP完成）
 
-- SQL エディタ（textarea / 後々 Monaco へ置き換え）
-- 構文チェック  
-  - SQLite の `EXPLAIN` を使用
-- SQL 実行（SELECT のみ許可）
-- 実行結果のテーブル表示  
-  - カラム名  
-  - 行データ  
-  - 件数  
+### 基本機能
+
+- ✅ SQL エディタ（textarea / 後々 Monaco へ置き換え予定）
+- ✅ 構文チェック
+  - SQLite の `EXPLAIN` を使用して構文の妥当性を確認
+- ✅ SQL 実行（SELECT のみ許可）
+  - セキュリティのため、SELECT文のみ実行可能
+- ✅ 実行結果のテーブル表示
+  - カラム名
+  - 行データ
+  - 件数
   - 実行時間（ms）
-- エラー表示
+- ✅ エラー表示
+- ✅ トースト通知によるフィードバック
 
 ### 今後追々追加予定
 
@@ -31,98 +33,150 @@
 
 ---
 
-## Tech Stack
+## 技術スタック
 
 ### Frontend / App
 
-- Next.js 14 (App Router)
-- React
-- TypeScript
+- Next.js 16.0.3 (App Router with Turbopack)
+- React 19.2.0
+- TypeScript 5.9.3
+- Chakra UI v3（UIコンポーネント、スタイル管理）
+- Framer Motion（アニメーション）
 
 ### Backend（Next.js内の API Routes）
 
-- `/api/execute` — SQL 実行  
-- `/api/lint` — 構文チェック  
-- Prisma  
-  - スキーマ管理  
+- `/api/execute` — SQL 実行
+- `/api/lint` — 構文チェック
+- Prisma 7.0.1
+  - スキーマ管理
   - 生 SQL 実行（`$queryRawUnsafe`）
+  - Better SQLite3アダプター使用
 
 ### Database
 
-- SQLite（ローカルファイル）
-- Prisma schema による簡易定義  
-  - 例：User テーブル
+- SQLite（ローカルファイル: `prisma/dev.db`）
+- Prisma schema による簡易定義
+  - User テーブル（id, email, name, age, createdAt）
+  - Post テーブル（id, title, content, published, authorId, createdAt）
+- サンプルデータ投入済み
 
 ---
 
-## Directory
+## ディレクトリ構成
 
 ```
-app/
-  page.tsx
-  api/
-    execute/
-      route.ts
-    lint/
-      route.ts
+src/
+  app/
+    page.tsx              # メインページ
+    layout.tsx            # ルートレイアウト
+    api/
+      execute/
+        route.ts          # SQL実行API
+      lint/
+        route.ts          # 構文チェックAPI
+  components/
+    SqlEditor.tsx         # SQLエディタコンポーネント
+    ResultTable.tsx       # 結果表示テーブル
+    ui/
+      provider.tsx        # Chakra UIプロバイダー
+      color-mode.tsx      # ダークモード対応
+  lib/
+    prisma.ts             # Prismaクライアントシングルトン
 prisma/
-  schema.prisma
+  schema.prisma           # データベーススキーマ
+  seed.ts                 # サンプルデータ投入
+  migrations/             # マイグレーションファイル
+prisma.config.ts          # Prisma 7設定ファイル
 ```
 
 ---
 
-## Development Flow
+## 開発フロー
 
-1. Next.js だけで MVP を完成  
-2. エディタを Monaco Editor に差し替え  
-3. スキーマ閲覧・簡易ドリル機能を追加  
-4. 必要に応じて Go バックエンドへ分離
+1. ✅ **Phase 1: MVP完成** — Next.js だけで基本機能を実装
+2. **Phase 2: エディタ強化** — Monaco Editor への置き換え
+3. **Phase 3: 機能追加** — スキーマ閲覧・簡易ドリル機能を追加
+4. **Phase 4: スケール** — 必要に応じて Go バックエンドへ分離
 
 ---
 
-## Setup
+## セットアップ手順
 
-```
+### 1. 依存関係のインストール
+
+```bash
 npm install
-npx prisma migrate dev
-npm run dev
 ```
 
+### 2. データベースのセットアップ
 
-===
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+```bash
+# マイグレーション実行（データベース作成）
+npx prisma migrate dev
 
-## Getting Started
+# サンプルデータ投入
+npx prisma db seed
+```
 
-First, run the development server:
+### 3. 開発サーバー起動
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 使い方
 
-## Learn More
+1. **SQLエディタ**にクエリを入力（デフォルトで `SELECT * FROM User;` が入力済み）
+2. **実行ボタン**をクリックしてSQLを実行
+3. **構文チェックボタン**で事前に構文の妥当性を確認可能
+4. 実行結果がテーブル形式で表示されます
 
-To learn more about Next.js, take a look at the following resources:
+### サンプルクエリ
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sql
+-- 全ユーザーを取得
+SELECT * FROM User;
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+-- 特定の年齢以上のユーザーを取得
+SELECT * FROM User WHERE age >= 28;
 
-## Deploy on Vercel
+-- ユーザーと投稿をJOIN
+SELECT User.name, Post.title, Post.published
+FROM User
+JOIN Post ON User.id = Post.authorId;
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+-- 公開済みの投稿のみ取得
+SELECT * FROM Post WHERE published = 1;
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Prisma 7への移行について
+
+このプロジェクトはPrisma 7を使用しています。主な変更点:
+
+- データソースURLは `prisma.config.ts` で管理
+- SQLite用の `@prisma/adapter-better-sqlite3` を使用
+- シードコマンドも `prisma.config.ts` で設定
+
+詳細は[Prisma 7 Upgrade Guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-7)を参照してください。
+
+---
+
+## トラブルシューティング
+
+### データベースをリセットしたい
+
+```bash
+npx prisma migrate reset
+```
+
+### Prismaクライアントを再生成
+
+```bash
+npx prisma generate
+```
